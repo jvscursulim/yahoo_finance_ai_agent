@@ -1,0 +1,18 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+streamlit = "*"
+openai = "*"
+langgraph = "*"
+langchain = "*"
+yfinance = "*"
+langchain-ollama = "*"
+
+[dev-packages]
+black = "*"
+
+[requires]
+python_version = "3.11"
