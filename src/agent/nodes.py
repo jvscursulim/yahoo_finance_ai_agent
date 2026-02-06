@@ -11,12 +11,12 @@ from .state import (
     CheckIfUserWantsChart,
     CheckIfUserWantsNews,
     CheckIfUserWantsBalancesheet,
-    CheckIfUserWantsDataSummary,
+    # CheckIfUserWantsDataSummary,
     CheckIfUserWantsFinancials,
-    CheckIfUserWantsPriceTargets,
+    # CheckIfUserWantsPriceTargets,
 )
 
-llm = ChatOllama(model="llama3.1:8b", temperature=0.1)
+llm = ChatOllama(model="llama3.1:8b", temperature=1e-1)
 
 
 def check_if_user_wants_a_chart(state: State):
@@ -27,8 +27,9 @@ def check_if_user_wants_a_chart(state: State):
     :type state: State
     """
 
-    prompt = """ You need to verify if in user message it is mentioned
-    the word chart.
+    prompt = """ 
+    Verify if in user message the word 'chart' is mentioned in the
+    sentence. The word chart can appears in expressions like: I would like to see a chart.
     """
     user_msg = state["messages"][-1].content
     response = llm.with_structured_output(CheckIfUserWantsChart).invoke(
@@ -46,8 +47,9 @@ def check_if_user_wants_news(state: State):
     :type state: State
     """
 
-    prompt = """ You need to verify if in user message it is a willing
-    to see some news about the assets mentioned.
+    prompt = """ You are a financial advisor and you
+    need to verify if in user message the word 'news' is mentioned.
+    Example: bring me the news about...
     """
     user_msg = state["messages"][-1].content
     response = llm.with_structured_output(CheckIfUserWantsNews).invoke(
@@ -65,8 +67,8 @@ def check_if_user_wants_balance(state: State):
     :type state: State
     """
 
-    prompt = """ You need to verify if in user message it is a willing
-    to see the balance the assets mentioned.
+    prompt = """ You are a financial advisor and you need to verify if in user message the term 'balance sheet'
+    is mentioned. Example: I would like to see the balance sheet of...
     """
     user_msg = state["messages"][-1].content
     response = llm.with_structured_output(CheckIfUserWantsBalancesheet).invoke(
@@ -84,8 +86,9 @@ def check_if_user_wants_financials(state: State):
     :type state: State
     """
 
-    prompt = """ You need to verify if in user message it is a willing
-    to see the financials of the assets mentioned.
+    prompt = """ You are an AI agent that behaves like a financial advisor. Your role here is to
+    check if in user message the word 'financials' is mentioned, because we want to know if the
+    user wants to see the financials of the company.
     """
     user_msg = state["messages"][-1].content
     response = llm.with_structured_output(CheckIfUserWantsFinancials).invoke(
@@ -95,42 +98,42 @@ def check_if_user_wants_financials(state: State):
     return {"usr_wants_financials": response.usr_wants_financials}
 
 
-def check_if_user_wants_summary(state: State):
-    """
-    Docstring for check_if_user_wants_summary
+# def check_if_user_wants_summary(state: State):
+#     """
+#     Docstring for check_if_user_wants_summary
 
-    :param state: Description
-    :type state: State
-    """
+#     :param state: Description
+#     :type state: State
+#     """
 
-    prompt = """ You need to verify if in user message it is a willing
-    to see a summary of the negociation day of the assets mentioned.
-    """
-    user_msg = state["messages"][-1].content
-    response = llm.with_structured_output(CheckIfUserWantsDataSummary).invoke(
-        [{"role": "system", "content": prompt}, {"role": "user", "content": user_msg}]
-    )
+#     prompt = """ You need to verify if in user message it is a willing
+#     to see a summary of the negociation day of the assets mentioned.
+#     """
+#     user_msg = state["messages"][-1].content
+#     response = llm.with_structured_output(CheckIfUserWantsDataSummary).invoke(
+#         [{"role": "system", "content": prompt}, {"role": "user", "content": user_msg}]
+#     )
 
-    return {"usr_wants_summary": response.usr_wants_summary}
+#     return {"usr_wants_summary": response.usr_wants_summary}
 
 
-def check_if_user_wants_price_target(state: State):
-    """
-    Docstring for check_if_user_wants_price_target
+# def check_if_user_wants_price_target(state: State):
+#     """
+#     Docstring for check_if_user_wants_price_target
 
-    :param state: Description
-    :type state: State
-    """
+#     :param state: Description
+#     :type state: State
+#     """
 
-    prompt = """ You need to verify if in user message it is a willing
-    to see the price target for the assets mentioned.
-    """
-    user_msg = state["messages"][-1].content
-    response = llm.with_structured_output(CheckIfUserWantsPriceTargets).invoke(
-        [{"role": "system", "content": prompt}, {"role": "user", "content": user_msg}]
-    )
+#     prompt = """ You need to verify if in user message it is a willing
+#     to see the price target for the assets mentioned.
+#     """
+#     user_msg = state["messages"][-1].content
+#     response = llm.with_structured_output(CheckIfUserWantsPriceTargets).invoke(
+#         [{"role": "system", "content": prompt}, {"role": "user", "content": user_msg}]
+#     )
 
-    return {"usr_wants_price_target": response.usr_wants_price_target}
+#     return {"usr_wants_price_target": response.usr_wants_price_target}
 
 
 def chat(state: State):
@@ -149,7 +152,7 @@ def chat(state: State):
 
     system_message = [SystemMessage(content=prompt)]
 
-    return {"messages": [llm.invoke(system_message + state["messages"])]}
+    return {"messages": [llm.invoke(system_message + [state["messages"][-1]])]}
 
 
 def get_assets_tickers(state: State):
@@ -191,7 +194,10 @@ def generate_chart(state: State):
             ]
         )
 
-        st.session_state.charts[len(st.session_state.charts.keys()) + 1] = fig
+        key = ""
+        for ticker in state["tickers"]:
+            key = key + " " + ticker 
+        st.session_state.charts[key] = fig
 
         prompt = """ You are an AI agent that behaves like a financial
         advisor. You should prepare a message for the user telling that you are preparing
@@ -201,7 +207,7 @@ def generate_chart(state: State):
 
         system_message = [SystemMessage(content=prompt)]
 
-        return {"messages": [llm.invoke(system_message + state["messages"])]}
+        return {"messages": [llm.invoke(system_message + [state["messages"][-1]])]}
     except ValueError as _e:
         st.error(_e, icon="🚨")
 
@@ -251,8 +257,8 @@ def balance_sheet(state: State):
     
     try:
         prompt = """ You are an AI agent that behaves like a financial
-        advisor. You should prepare a message for the user telling that you are preparing
-        the dataframe with the balance sheet data.
+        advisor. You should prepare a message for the user telling that balance sheet
+        data will be available soon.
         """
 
         system_message = [SystemMessage(content=prompt)]
@@ -261,7 +267,7 @@ def balance_sheet(state: State):
             ticker_data = yf.Ticker(ticker=ticker)
             st.session_state.dfs["balance sheet "+ticker] = ticker_data.balance_sheet
 
-        return {"messages": [llm.invoke(system_message + state["messages"])]}
+        return {"messages": [llm.invoke(system_message + [state["messages"][-1]])]}
     except ValueError as _e:
         st.error(_e, icon="🚨")
 
@@ -276,8 +282,8 @@ def financials(state: State):
     
     try:
         prompt = """ You are an AI agent that behaves like a financial
-        advisor. You should prepare a message for the user telling that you are preparing
-        the dataframe with the financials data.
+        advisor. You should prepare a message for the user telling that financials data
+        will be available soon.
         """
 
         system_message = [SystemMessage(content=prompt)]
@@ -286,78 +292,78 @@ def financials(state: State):
             ticker_data = yf.Ticker(ticker=ticker)
             st.session_state.dfs["financials "+ticker] = ticker_data.financials
 
-        return {"messages": [llm.invoke(system_message + state["messages"])]}
+        return {"messages": [llm.invoke(system_message + [state["messages"][-1]])]}
     except ValueError as _e:
         st.error(_e, icon="🚨")
 
 
-def price_targets(state: State):
-    """
-    Docstring for price_targets
+# def price_targets(state: State):
+#     """
+#     Docstring for price_targets
     
-    :param state: Description
-    :type state: State
-    """
+#     :param state: Description
+#     :type state: State
+#     """
     
-    try:
-        prompt = """ You are an AI agent that behaves like a financial
-        advisor. You should prepare a message for the user telling that you are preparing
-        a chart with the prices of the assets mentioned.
-        """
+#     try:
+#         prompt = """ You are an AI agent that behaves like a financial
+#         advisor. You should prepare a message for the user telling that you are preparing
+#         a chart with the prices of the assets mentioned.
+#         """
 
-        system_message = [SystemMessage(content=prompt)]
+#         system_message = [SystemMessage(content=prompt)]
 
-        context = ""
-        for ticker in state["tickers"]:
-            ticker_data = yf.Ticker(ticker=ticker)
-            for news in ticker_data.news:
-                aux = f"""\n
-                Title: {news["content"]["title"]}
-                Summary: {news["content"]["summary"]}
-                \n
-                """
-                context = context + aux
+#         context = ""
+#         for ticker in state["tickers"]:
+#             ticker_data = yf.Ticker(ticker=ticker)
+#             for news in ticker_data.news:
+#                 aux = f"""\n
+#                 Title: {news["content"]["title"]}
+#                 Summary: {news["content"]["summary"]}
+#                 \n
+#                 """
+#                 context = context + aux
 
-        msg = [HumanMessage(content=context)]
+#         msg = [HumanMessage(content=context)]
 
-        return {"messages": [llm.invoke(system_message + msg)]}
-    except ValueError as _e:
-        st.error(_e, icon="🚨")
+#         return {"messages": [llm.invoke(system_message + msg)]}
+#     except ValueError as _e:
+#         st.error(_e, icon="🚨")
 
 
-def data_summary(state: State):
-    """
-    Docstring for data_summary
+# def data_summary(state: State):
+#     """
+#     Docstring for data_summary
     
-    :param state: Description
-    :type state: State
-    """
+#     :param state: Description
+#     :type state: State
+#     """
 
-    try:
-        prompt = """ You are an AI agent that behaves like a financial
-        advisor. You should give a summary of the news available for the asset
-        and explain them for the user. At the end of the message you should to
-        mention that the news were obtained in Yahoo Finance API.
-        """
+#     try:
+#         prompt = """ You are an AI agent that behaves like a financial
+#         advisor. You should give a summary of the news available for the asset
+#         and explain them for the user. At the end of the message you should to
+#         mention that the news were obtained in Yahoo Finance API.
+#         """
 
-        system_message = [SystemMessage(content=prompt)]
+#         system_message = [SystemMessage(content=prompt)]
 
-        context = ""
-        for ticker in state["tickers"]:
-            ticker_data = yf.Ticker(ticker=ticker)
-            for news in ticker_data.news:
-                aux = f"""\n
-                Title: {news["content"]["title"]}
-                Summary: {news["content"]["summary"]}
-                \n
-                """
-                context = context + aux
+#         context = ""
+#         for ticker in state["tickers"]:
+#             ticker_data = yf.Ticker(ticker=ticker)
+#             for news in ticker_data.news:
+#                 aux = f"""\n
+#                 Title: {news["content"]["title"]}
+#                 Summary: {news["content"]["summary"]}
+#                 \n
+#                 """
+#                 context = context + aux
 
-        msg = [HumanMessage(content=context)]
+#         msg = [HumanMessage(content=context)]
 
-        return {"messages": [llm.invoke(system_message + msg)]}
-    except ValueError as _e:
-        st.error(_e, icon="🚨")
+#         return {"messages": [llm.invoke(system_message + msg)]}
+#     except ValueError as _e:
+#         st.error(_e, icon="🚨")
 
 
 def router1(state: State):
@@ -413,32 +419,32 @@ def router4(state: State):
     if state["usr_wants_financials"]:
         return "financials"
     else:
-        return "check_if_user_wants_price_target"
-
-
-def router5(state: State):
-    """
-    Docstring for router5
-
-    :param state: Description
-    :type state: State
-    """
-
-    if state["usr_wants_price_target"]:
-        return "price_targets"
-    else:
-        return "check_if_user_wants_summary"
-
-
-def router6(state: State):
-    """
-    Docstring for router6
-
-    :param state: Description
-    :type state: State
-    """
-
-    if state["usr_wants_summary"]:
-        return "data_summary"
-    else:
         return "chat"
+
+
+# def router5(state: State):
+#     """
+#     Docstring for router5
+
+#     :param state: Description
+#     :type state: State
+#     """
+
+#     if state["usr_wants_price_target"]:
+#         return "price_targets"
+#     else:
+#         return "check_if_user_wants_summary"
+
+
+# def router6(state: State):
+#     """
+#     Docstring for router6
+
+#     :param state: Description
+#     :type state: State
+#     """
+
+#     if state["usr_wants_summary"]:
+#         return "data_summary"
+#     else:
+#         return "chat"

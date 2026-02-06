@@ -84,7 +84,7 @@ with tab1:
             st.plotly_chart(st.session_state.charts[chart_selected])
 
         if not st.session_state.dfs == {}:
-            st.write("Data history")
+            st.header("Data history")
             options = st.session_state.dfs.keys()
             df_selected = st.selectbox(
                 label="Data index", 
@@ -92,10 +92,12 @@ with tab1:
                 index=len(options)-1
             )
             st.dataframe(st.session_state.dfs[df_selected])
+            if st.button("Save data"):
+                st.session_state.dfs[df_selected].to_csv(f"{df_selected}.csv")
+                st.success("Data saved with success!", icon="✅")
 
-    if st.toggle(label="Show debug"):
-        with st.expander(label="Debug", icon="🐞"):
-            st.write(agent.get_state(config=st.session_state.config))
+    with st.expander(label="Debug", icon="🐞"):
+        st.write(agent.get_state(config=st.session_state.config))
 
 with tab2:
     st.image(agent.get_graph().draw_mermaid_png())

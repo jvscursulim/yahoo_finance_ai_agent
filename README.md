@@ -12,11 +12,20 @@ Users are solely responsible for any actions taken based on the outputs of this 
 
 ## Description
 
+This is a project about AI agent that behaves like a financial advisor and has access to Yahoo Finance API for downloading data when the user asks to see prices chart or even the balance sheet of an asset.
 
 ## How to install
 
 * Prerequisites
     * `python==3.11`
+    * `ollama`
+
+* Libraries
+    * streamlit
+    * langchain
+    * langgraph
+    * langchain-ollama
+    * yfinance
 
 1. Clone this repository
 ```bash
@@ -53,8 +62,6 @@ ollama pull llama3.1:8b
 ```bash
 streamlit run src/home.py
 ```
-
-## Demo
 
 ## References
 

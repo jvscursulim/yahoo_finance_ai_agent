@@ -8,20 +8,20 @@ from .nodes import (
     generate_news,
     balance_sheet,
     financials,
-    data_summary,
-    price_targets,
+    # data_summary,
+    # price_targets,
     check_if_user_wants_a_chart,
     check_if_user_wants_news,
     check_if_user_wants_balance,
     check_if_user_wants_financials,
-    check_if_user_wants_price_target,
-    check_if_user_wants_summary,
+    # check_if_user_wants_price_target,
+    # check_if_user_wants_summary,
     router1,
     router2,
     router3,
     router4,
-    router5,
-    router6,
+    # router5,
+    # router6,
 )
 from .state import State
 
@@ -34,14 +34,14 @@ graph.add_node("generate_chart", generate_chart)
 graph.add_node("generate_news", generate_news)
 graph.add_node("balance_sheet", balance_sheet)
 graph.add_node("financials", financials)
-graph.add_node("data_summary", data_summary)
-graph.add_node("price_targets", price_targets)
+# graph.add_node("data_summary", data_summary)
+# graph.add_node("price_targets", price_targets)
 graph.add_node("check_if_user_wants_a_chart", check_if_user_wants_a_chart)
 graph.add_node("check_if_user_wants_news", check_if_user_wants_news)
 graph.add_node("check_if_user_wants_balance", check_if_user_wants_balance)
 graph.add_node("check_if_user_wants_financials", check_if_user_wants_financials)
-graph.add_node("check_if_user_wants_price_target", check_if_user_wants_price_target)
-graph.add_node("check_if_user_wants_summary", check_if_user_wants_summary)
+# graph.add_node("check_if_user_wants_price_target", check_if_user_wants_price_target)
+# graph.add_node("check_if_user_wants_summary", check_if_user_wants_summary)
 
 # Edges
 graph.add_edge(START, "get_assets_tickers")
@@ -77,26 +77,26 @@ graph.add_conditional_edges(
     "check_if_user_wants_financials",
     router4,
     {
-        "check_if_user_wants_price_target": "check_if_user_wants_price_target",
         "financials": "financials",
+        "chat": "chat",
     },
 )
 graph.add_edge("financials", END)
-graph.add_conditional_edges(
-    "check_if_user_wants_price_target",
-    router5,
-    {
-        "check_if_user_wants_summary": "check_if_user_wants_summary",
-        "price_targets": "price_targets",
-    },
-)
-graph.add_edge("price_targets", END)
-graph.add_conditional_edges(
-    "check_if_user_wants_summary",
-    router6,
-    {"chat": "chat", "data_summary": "data_summary"},
-)
-graph.add_edge("price_targets", END)
+# graph.add_conditional_edges(
+#     "check_if_user_wants_price_target",
+#     router5,
+#     {
+#         "check_if_user_wants_summary": "check_if_user_wants_summary",
+#         "price_targets": "price_targets",
+#     },
+# )
+# graph.add_edge("price_targets", END)
+# graph.add_conditional_edges(
+#     "check_if_user_wants_summary",
+#     router6,
+#     {"chat": "chat", "data_summary": "data_summary"},
+# )
+# graph.add_edge("price_targets", END)
 graph.add_edge("chat", END)
 
 memory = MemorySaver()

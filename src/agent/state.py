@@ -16,8 +16,8 @@ class State(TypedDict):
     usr_wants_news: bool
     usr_wants_balance: bool
     usr_wants_financials: bool
-    usr_wants_summary: bool
-    usr_wants_price_target: bool
+    # usr_wants_summary: bool
+    # usr_wants_price_target: bool
 
 
 class GetAssetsTickers(BaseModel):
@@ -93,29 +93,29 @@ class CheckIfUserWantsFinancials(BaseModel):
     )
 
 
-class CheckIfUserWantsDataSummary(BaseModel):
-    """
-    Docstring for CheckIfUserWantsDataSummary
-    """
+# class CheckIfUserWantsDataSummary(BaseModel):
+#     """
+#     Docstring for CheckIfUserWantsDataSummary
+#     """
 
-    usr_wants_summary: Literal[True, False] = Field(
-        default=False,
-        description="""
-        Check if in user message there is a willing to
-        know assets data summary.
-        """,
-    )
+#     usr_wants_summary: Literal[True, False] = Field(
+#         default=False,
+#         description="""
+#         Check if in user message there is a willing to
+#         know assets data summary.
+#         """,
+#     )
 
 
-class CheckIfUserWantsPriceTargets(BaseModel):
-    """
-    Docstring for CheckIfUserWantsPriceTargets
-    """
+# class CheckIfUserWantsPriceTargets(BaseModel):
+#     """
+#     Docstring for CheckIfUserWantsPriceTargets
+#     """
 
-    usr_wants_price_target: Literal[True, False] = Field(
-        default=False,
-        description="""
-        Check if in user message there is a willing to know
-        the price target defined by analysts for the assets.
-        """,
-    )
+#     usr_wants_price_target: Literal[True, False] = Field(
+#         default=False,
+#         description="""
+#         Check if in user message there is a willing to know
+#         the price target defined by analysts for the assets.
+#         """,
+#     )
